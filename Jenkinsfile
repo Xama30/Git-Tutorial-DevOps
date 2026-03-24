@@ -6,7 +6,7 @@ node {
     }
 
     stage('Build image') {
-        app = docker.build("Xama30/git-tutorial-devops")
+        app = docker.build("xama30/git-tutorial-devops")
     }
 
     stage('Test image') {
