@@ -1,0 +1,11 @@
+{
+	"name": "git-tutorial-devops",
+	"version": "1.0.0",
+	"description": "Basic Hello World Node app",
+	"main": "main.js",
+	"scripts": {
+		"start": "node main.js",
+		"test": "echo \"No tests specified\" && exit 0"
+	},
+	"license": "MIT"
+}
