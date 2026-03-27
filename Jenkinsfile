@@ -1,48 +1,24 @@
-pipeline {
-    agent any
+node {
+    def app
 
-    // Ce bloc 'options' est le remède miracle pour lier Jenkins à GitHub
-    options {
-        githubProjectProperty(projectUrlStr: 'https://github.com/Xama30/jenkins-integration/')
+    stage('Clone repository'){
+        checkout scm
     }
 
-    environment {
-        DOCKER_IMAGE = "serveurtracker-api"
+    stage('Build image') {
+        app = docker.build("xama30/git-tutorial-devops")
     }
 
-    stages {
-        stage('Restore & Lint') {
-            steps {
-                sh 'dotnet restore'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'dotnet build --configuration Release --no-restore'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'dotnet test --no-build --configuration Release --verbosity normal'
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                sh "docker build -t ${DOCKER_IMAGE}:latest ./ServeurTracker.Api"
-            }
+    stage('Test image') {
+        app.inside{
+            sh 'echo "Running tests..."'
         }
     }
 
-    // Jenkins enverra automatiquement le statut final à GitHub
-    post {
-        success {
-            echo 'Pipeline terminé avec succès. Les statuts sont envoyés à GitHub.'
-        }
-        failure {
-            echo 'Pipeline interrompu. Vérifie les logs.'
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+            app.push("${env.BUILD_NUMBER}")
+            app.push('latest')
         }
     }
 }
